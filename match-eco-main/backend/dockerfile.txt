@@ -1,0 +1,19 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source
+COPY . .
+
+# The container will listen on $PORT (Render, Railway, etc. provide it)
+ENV PORT=8080
+
+# Start via gunicorn (2 workers is fine for small apps)
+CMD ["bash", "-lc", "exec gunicorn -w 2 -b 0.0.0.0:${PORT:-8080} app:app"]
